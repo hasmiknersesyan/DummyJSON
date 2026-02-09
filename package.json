@@ -7,7 +7,6 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
-    "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
     "test:products": "playwright test tests/products.spec.ts",
     "test:crud": "playwright test tests/products-crud.spec.ts",
@@ -21,7 +20,7 @@
     "dummyjson",
     "test-automation"
   ],
-  "author": "",
+  "author": "HNersesyan",
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.40.0",

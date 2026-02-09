@@ -9,3 +9,4 @@ playwright/.cache/
 .DS_Store
 package-lock.json
 yarn.lock
+.github/copilot-instructions.md

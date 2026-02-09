@@ -123,14 +123,8 @@ For programmatic access or CI/CD integration:
 npx playwright test --reporter=json > test-results.json
 ```
 
-### 4. JUnit Report
 
-For integration with CI/CD systems like Jenkins:
-```bash
-npx playwright test --reporter=junit > junit-results.xml
-```
-
-### 5. Trace Viewer
+### 4. Trace Viewer
 
 For deep debugging, enable trace recording:
 ```bash
@@ -269,9 +263,6 @@ Contributions are welcome! Please follow these guidelines:
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Resources
 
