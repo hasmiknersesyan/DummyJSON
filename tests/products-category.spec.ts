@@ -6,7 +6,7 @@ import { testCategories } from '../lib/fixtures/test-data';
 /**
  * Test suite for DummyJSON Products API - Category Filtering
  */
-test.describe.only('Products API - Category Filtering', () => {
+test.describe('Products API - Category Filtering', () => {
     let productsAPI: ProductsAPI;
 
     test.beforeEach(async ({ request }) => {
@@ -124,7 +124,7 @@ test.describe.only('Products API - Category Filtering', () => {
         }
     });
 
-    test.only('should validate category names match exactly', async () => {
+    test('should validate category names match exactly', async () => {
         const categories = await productsAPI.getCategories();
         const testCategory = categories[0];
         const categoryName = typeof testCategory === 'string' ? testCategory : (testCategory.slug || testCategory.name);
