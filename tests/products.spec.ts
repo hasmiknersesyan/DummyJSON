@@ -1,7 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { ProductsAPI, Category } from '../lib/api/products-api';
-import { ProductAssertions } from '../lib/helpers/assertions';
-import { knownProductIds, paginationData } from '../lib/fixtures/test-data';
+import { ProductsAPI, Category } from '@lib/api/products-api';
+import { ProductAssertions } from '@lib/helpers/assertions';
+import { knownProductIds, paginationData } from '@lib/fixtures/test-data';
+import singleProductSchema from '@lib/fixtures/schemas/product.schema.json';
+import { validateResponseSchema } from '@lib/helpers/ajv_schema_validator';
+
 
 /**
  * Test suite for DummyJSON Products API - Basic Operations
@@ -65,6 +68,10 @@ test.describe('Products API - Basic Operations', () => {
         const product = await response.json();
         ProductAssertions.assertValidProduct(product);
         expect(product.id).toBe(productId);
+
+        expect(validateResponseSchema(product, singleProductSchema), 'Schema validation should pass').toBe(true);
+
+
     });
 
     test('should return 404 for non-existent product ID', async ({ request }) => {
