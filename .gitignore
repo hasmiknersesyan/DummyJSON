@@ -6,7 +6,10 @@ test-results.json
 playwright/.cache/
 *.log
 .env
+.env.local
 .DS_Store
 package-lock.json
 yarn.lock
 .github/copilot-instructions.md
+
+
