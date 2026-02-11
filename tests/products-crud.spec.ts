@@ -8,7 +8,7 @@ import { generateRandomProductTitle, generateRandomPrice } from '../lib/helpers/
  * Test suite for DummyJSON Products API - CRUD Operations
  * Note: DummyJSON simulates these operations but doesn't persist data
  */
-test.describe.only('Products API - CRUD Operations', () => {
+test.describe('Products API - CRUD Operations', () => {
     let productsAPI: ProductsAPI;
 
     test.beforeEach(async ({ request }) => {

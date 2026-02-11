@@ -16,7 +16,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search products with valid query', async () => {
         const searchTerm = searchQueries.valid;
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
 
         ProductAssertions.assertValidProductsResponse(data);
@@ -28,7 +28,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should return empty results for non-existent search query', async () => {
         const searchTerm = searchQueries.noResults;
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
 
         expect(data.products).toBeDefined();
@@ -40,7 +40,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search with partial product name', async () => {
         const searchTerm = searchQueries.partial;
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
         ProductAssertions.assertValidProductsResponse(data);
         expect(data.products.length).toBeGreaterThan(0);
 
@@ -54,7 +54,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search with multi-word query', async () => {
         const searchTerm = searchQueries.multiWord;
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         expect(data.products).toBeDefined();
         expect(Array.isArray(data.products)).toBeTruthy();
@@ -78,7 +78,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search in product titles', async () => {
         const searchTerm = 'iPhone';
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         if (data.products.length > 0) {
             const hasMatchInTitle = data.products.some(product =>
@@ -92,7 +92,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search in product descriptions', async () => {
         const searchTerm = 'smartphone';
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         if (data.products.length > 0) {
             const hasMatchInDescription = data.products.some(product =>
@@ -106,7 +106,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search in product brands', async () => {
         const searchTerm = 'Apple';
         const responseAll = await productsAPI.searchProducts(searchTerm);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         if (data.products.length > 0) {
             const hasMatchInBrand = data.products.some(product =>
@@ -119,7 +119,7 @@ test.describe('Products API - Search Functionality', () => {
 
     test('should handle empty search query', async () => {
         const responseAll = await productsAPI.searchProducts('');
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         expect(responseAll.ok).toBeTruthy();
 
@@ -133,7 +133,7 @@ test.describe('Products API - Search Functionality', () => {
 
         for (const char of specialChars) {
             const responseAll = await productsAPI.searchProducts(char);
-            let data = responseAll.data;
+            const data = responseAll.data;
 
             expect(responseAll.ok).toBeTruthy();
             expect(data.products).toBeDefined();
@@ -151,7 +151,7 @@ test.describe('Products API - Search Functionality', () => {
 
     test('should search and validate product structure', async () => {
         const responseAll = await productsAPI.searchProducts('perfume');
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         if (data.products.length > 0) {
             data.products.forEach(product => {
@@ -164,7 +164,7 @@ test.describe('Products API - Search Functionality', () => {
     test('should search with very long query string', async ({ request }) => {
         const longQuery = 'a'.repeat(200);
         const responseAll = await productsAPI.searchProducts(longQuery);
-        let data = responseAll.data;
+        const data = responseAll.data;
 
         expect(responseAll.ok).toBeTruthy();
         expect(data.products).toBeDefined();

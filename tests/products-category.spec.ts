@@ -15,12 +15,13 @@ test.describe('Products API - Category Filtering', () => {
 
     test('should fetch all available categories', async () => {
         const categories = await productsAPI.getCategories();
+        const data = categories.data;
 
-        expect(Array.isArray(categories)).toBeTruthy();
-        expect(categories.length).toBeGreaterThan(0);
+        expect(data).toBeDefined();
+        expect(Array.isArray(data)).toBeTruthy();
+        expect(data.length).toBeGreaterThan(0);
 
-        // Categories can be strings or objects with slug/name
-        categories.forEach(category => {
+        data.forEach(category => {
             if (typeof category === 'string') {
                 expect(category.length).toBeGreaterThan(0);
                 expect(category.trim()).toBe(category); // No leading/trailing spaces
@@ -31,7 +32,7 @@ test.describe('Products API - Category Filtering', () => {
         });
 
         // Verify known categories exist (check for slug or direct string)
-        const categoryNames = categories.map(cat =>
+        const categoryNames = data.map(cat =>
             typeof cat === 'string' ? cat : cat.slug || cat.name
         );
         expect(categoryNames.some(name => name.includes('smartphone'))).toBeTruthy();
@@ -40,41 +41,45 @@ test.describe('Products API - Category Filtering', () => {
     test('should fetch products from smartphones category', async () => {
         const category = 'smartphones';
         const response = await productsAPI.getProductsByCategory(category);
+        const data = response.data;
 
-        ProductAssertions.assertValidProductsResponse(response);
-        expect(response.products.length).toBeGreaterThan(0);
+        ProductAssertions.assertValidProductsResponse(data);
+        expect(data.products.length).toBeGreaterThan(0);
 
         // All products should belong to the requested category
-        ProductAssertions.assertProductsInCategory(response.products, category);
+        ProductAssertions.assertProductsInCategory(data.products, category);
     });
 
     test('should fetch products from laptops category', async () => {
         const category = 'laptops';
         const response = await productsAPI.getProductsByCategory(category);
+        const data = response.data;
 
-        ProductAssertions.assertValidProductsResponse(response);
-        expect(response.products.length).toBeGreaterThan(0);
+        ProductAssertions.assertValidProductsResponse(data);
+        expect(data.products.length).toBeGreaterThan(0);
 
         // All products should belong to laptops category
-        ProductAssertions.assertProductsInCategory(response.products, category);
+        ProductAssertions.assertProductsInCategory(data.products, category);
     });
 
     test('should fetch products from fragrances category', async () => {
         const category = 'fragrances';
         const response = await productsAPI.getProductsByCategory(category);
+        const data = response.data;
 
-        ProductAssertions.assertValidProductsResponse(response);
-        expect(response.products.length).toBeGreaterThan(0);
+        ProductAssertions.assertValidProductsResponse(data);
+        expect(data.products.length).toBeGreaterThan(0);
 
-        ProductAssertions.assertProductsInCategory(response.products, category);
+        ProductAssertions.assertProductsInCategory(data.products, category);
     });
 
     test('should validate all products in category have consistent structure', async () => {
         const category = 'beauty';
         const response = await productsAPI.getProductsByCategory(category);
+        const data = response.data;
 
-        if (response.products.length > 0) {
-            response.products.forEach(product => {
+        if (data.products.length > 0) {
+            data.products.forEach(product => {
                 ProductAssertions.assertValidProduct(product);
                 expect(product.category).toBe(category);
             });
@@ -106,8 +111,8 @@ test.describe('Products API - Category Filtering', () => {
         const response2 = await productsAPI.getProductsByCategory(category2);
 
         // Get product IDs from each category
-        const ids1 = response1.products.map(p => p.id);
-        const ids2 = response2.products.map(p => p.id);
+        const ids1 = response1.data.products.map(p => p.id);
+        const ids2 = response2.data.products.map(p => p.id);
 
         // Categories should not share products
         const overlap = ids1.filter(id => ids2.includes(id));
@@ -117,23 +122,21 @@ test.describe('Products API - Category Filtering', () => {
     test('should test multiple categories sequentially', async () => {
         for (const category of testCategories.slice(0, 3)) {
             const response = await productsAPI.getProductsByCategory(category);
-
-            ProductAssertions.assertValidProductsResponse(response);
-            expect(response.products.length).toBeGreaterThan(0);
-            ProductAssertions.assertProductsInCategory(response.products, category);
+            const data = response.data;
+            ProductAssertions.assertValidProductsResponse(data);
+            expect(data.products.length).toBeGreaterThan(0);
+            ProductAssertions.assertProductsInCategory(data.products, category);
         }
     });
 
     test('should validate category names match exactly', async () => {
         const categories = await productsAPI.getCategories();
-        const testCategory = categories[0];
+        const testCategory = categories.data[0];
         const categoryName = typeof testCategory === 'string' ? testCategory : (testCategory.slug || testCategory.name);
-
-        // console.log(`Testing category: ${typeof testCategory === 'string' ? testCategory : testCategory.slug || testCategory.name}`);
-        // console.log('Available categories:', categories);
         const response = await productsAPI.getProductsByCategory(testCategory);
+        const data = response.data;
 
-        response.products.forEach(product => {
+        data.products.forEach(product => {
             // console.log(`Product ID: ${product.id}, Category: ${product.category}`);
             // console.log(`Expected product ` + product );
             expect(product.category).toBe(categoryName);
@@ -143,7 +146,7 @@ test.describe('Products API - Category Filtering', () => {
 
     test('should handle category with spaces (if any)', async () => {
         const categories = await productsAPI.getCategories();
-        const categoryWithSpace = categories.find(cat => {
+        const categoryWithSpace = categories.data.find(cat => {
             const name = typeof cat === 'string' ? cat : (cat.slug || cat.name);
             return name?.includes(' ');
         });
@@ -153,7 +156,8 @@ test.describe('Products API - Category Filtering', () => {
                 ? categoryWithSpace
                 : (categoryWithSpace.slug || categoryWithSpace.name);
             const response = await productsAPI.getProductsByCategory(categoryName);
-            expect(response.products).toBeDefined();
+
+            expect(response.data.products).toBeDefined();
         } else {
             // If no category with space exists, this test passes
             expect(true).toBeTruthy();
@@ -163,12 +167,12 @@ test.describe('Products API - Category Filtering', () => {
     test('should verify category endpoint returns paginated response', async () => {
         const category = 'groceries';
         const response = await productsAPI.getProductsByCategory(category);
-
+        const data = response.data;
         // Should have pagination metadata
-        expect(response.total).toBeDefined();
-        expect(response.skip).toBeDefined();
-        expect(response.limit).toBeDefined();
-        expect(response.total).toBeGreaterThanOrEqual(response.products.length);
+        expect(data.total).toBeDefined();
+        expect(data.skip).toBeDefined();
+        expect(data.limit).toBeDefined();
+        expect(data.total).toBeGreaterThanOrEqual(data.products.length);
     });
 
     test('should validate response time for category filter', async () => {
@@ -184,15 +188,16 @@ test.describe('Products API - Category Filtering', () => {
         const categories = await productsAPI.getCategories();
 
         // Test first 5 categories to avoid long execution
-        const categoriesToTest = categories.slice(0, 5).map(cat =>
+        const categoriesToTest = categories.data.slice(0, 5).map(cat =>
             typeof cat === 'string' ? cat : (cat.slug || cat.name)
         );
 
         for (const category of categoriesToTest) {
             const response = await productsAPI.getProductsByCategory(category);
+            const data = response.data;
             // Allow for empty categories as API data may vary
-            expect(response.products).toBeDefined();
-            expect(Array.isArray(response.products)).toBeTruthy();
+            expect(data.products).toBeDefined();
+            expect(Array.isArray(data.products)).toBeTruthy();
         }
     });
 
@@ -215,12 +220,12 @@ test.describe('Products API - Category Filtering', () => {
     test('should validate total count matches products in category', async () => {
         const category = 'laptops';
         const response = await productsAPI.getProductsByCategory(category);
-
+        const data = response.data;
         // If not paginated (all results returned)
-        if (response.products.length < 30) {
-            expect(response.total).toBeGreaterThanOrEqual(response.products.length);
+        if (data.products.length < 30) {
+            expect(data.total).toBeGreaterThanOrEqual(data.products.length);
         } else {
-            expect(response.total).toBeGreaterThan(0);
+            expect(data.total).toBeGreaterThan(0);
         }
     });
 });
