@@ -9,7 +9,7 @@ import { validateResponseSchema } from '@lib/helpers/ajv_schema_validator';
 /**
  * Test suite for DummyJSON Products API - Basic Operations
  */
-test.describe.only('Products API - Basic Operations', () => {
+test.describe('Products API - Basic Operations', () => {
     let productsAPI: ProductsAPI;
 
     test.beforeEach(async ({ request }) => {
