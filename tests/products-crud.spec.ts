@@ -8,217 +8,199 @@ import { generateRandomProductTitle, generateRandomPrice } from '../lib/helpers/
  * Test suite for DummyJSON Products API - CRUD Operations
  * Note: DummyJSON simulates these operations but doesn't persist data
  */
-test.describe('Products API - CRUD Operations', () => {
-  let productsAPI: ProductsAPI;
+test.describe.only('Products API - CRUD Operations', () => {
+    let productsAPI: ProductsAPI;
 
-  test.beforeEach(async ({ request }) => {
-    productsAPI = new ProductsAPI(request);
-  });
-
-  test('should create a new product (POST)', async ({ request }) => {
-    const newProduct = {
-      ...sampleProduct,
-      title: generateRandomProductTitle(),
-      price: generateRandomPrice(),
-    };
-
-    const response = await request.post('/products/add', {
-      data: newProduct,
+    test.beforeEach(async ({ request }) => {
+        productsAPI = new ProductsAPI(request);
     });
 
-    expect(response.ok()).toBeTruthy();
-    expect(response.status()).toBe(201);
+    test('should create a new product (POST)', async () => {
+        const newProduct = {
+            ...sampleProduct,
+            title: generateRandomProductTitle(),
+            price: generateRandomPrice(),
+        };
 
-    const createdProduct = await response.json();
-    
-    // Verify the product was "created" with an ID
-    expect(createdProduct.id).toBeDefined();
-    expect(createdProduct.id).toBeGreaterThan(0);
-    
-    // Verify all submitted fields are returned
-    expect(createdProduct.title).toBe(newProduct.title);
-    expect(createdProduct.price).toBe(newProduct.price);
-    expect(createdProduct.description).toBe(newProduct.description);
-    expect(createdProduct.brand).toBe(newProduct.brand);
-    expect(createdProduct.category).toBe(newProduct.category);
-  });
+        const response = await productsAPI.addProduct(newProduct);
 
-  test('should update a product completely (PUT)', async ({ request }) => {
-    const productId = 1;
-    const updates = {
-      title: 'Updated Product via PUT',
-      price: 299.99,
-      description: 'Completely updated product description',
-      brand: 'Updated Brand',
-      category: 'laptops',
-    };
+        expect(response.ok).toBeTruthy();
+        expect(response.status).toBe(201);
 
-    const response = await request.put(`/products/${productId}`, {
-      data: updates,
+        const createdProduct = response.data;
+
+        // Verify the product was "created" with an ID
+        expect(createdProduct.id).toBeDefined();
+        expect(createdProduct.id).toBeGreaterThan(0);
+
+        // Verify all submitted fields are returned
+        expect(createdProduct.title).toBe(newProduct.title);
+        expect(createdProduct.price).toBe(newProduct.price);
+        expect(createdProduct.description).toBe(newProduct.description);
+        expect(createdProduct.brand).toBe(newProduct.brand);
+        expect(createdProduct.category).toBe(newProduct.category);
     });
 
-    expect(response.ok()).toBeTruthy();
-    expect(response.status()).toBe(200);
+    test('should update a product completely (PUT)', async () => {
+        const productId = 1;
+        const updates = {
+            title: 'Updated Product via PUT',
+            price: 299.99,
+            description: 'Completely updated product description',
+            brand: 'Updated Brand',
+            category: 'laptops',
+        };
 
-    const updatedProduct = await response.json();
-    
-    // Verify the product ID remains the same
-    expect(updatedProduct.id).toBe(productId);
-    
-    // Verify all updates were applied
-    ProductAssertions.assertProductsMatch(updatedProduct, updates);
-  });
+        const response = await productsAPI.updateProduct(productId, updates);
 
-  test('should partially update a product (PATCH)', async ({ request }) => {
-    const productId = 1;
-    const updates = {
-      price: 499.99,
-    };
+        expect(response.ok).toBeTruthy();
+        expect(response.status).toBe(200);
 
-    const response = await request.patch(`/products/${productId}`, {
-      data: updates,
+        const updatedProduct = response.data;
+
+        // Verify the product ID remains the same
+        expect(updatedProduct.id).toBe(productId);
+
+        // Verify all updates were applied
+        ProductAssertions.assertProductsMatch(updatedProduct, updates);
     });
 
-    expect(response.ok()).toBeTruthy();
-    expect(response.status()).toBe(200);
+    test('should partially update a product (PATCH)', async () => {
+        const productId = 1;
+        const updates = {
+            price: 499.99,
+        };
 
-    const updatedProduct = await response.json();
-    
-    // Verify the product ID remains the same
-    expect(updatedProduct.id).toBe(productId);
-    
-    // Verify the price was updated
-    expect(updatedProduct.price).toBe(updates.price);
-    
-    // Other fields should still exist
-    expect(updatedProduct.title).toBeDefined();
-    expect(updatedProduct.description).toBeDefined();
-  });
+        const response = await productsAPI.patchProduct(productId, updates);
 
-  test('should delete a product (DELETE)', async ({ request }) => {
-    const productId = 1;
+        expect(response.ok).toBeTruthy();
+        expect(response.status).toBe(200);
 
-    const response = await request.delete(`/products/${productId}`);
+        const updatedProduct = response.data;
 
-    expect(response.ok()).toBeTruthy();
-    expect(response.status()).toBe(200);
+        // Verify the product ID remains the same
+        expect(updatedProduct.id).toBe(productId);
 
-    const deletedProduct = await response.json();
-    
-    // Verify deletion response
-    expect(deletedProduct.id).toBe(productId);
-    expect(deletedProduct.isDeleted).toBe(true);
-    expect(deletedProduct.deletedOn).toBeDefined();
-    
-    // Verify deletedOn is a valid ISO date
-    const deletedDate = new Date(deletedProduct.deletedOn);
-    expect(deletedDate.toString()).not.toBe('Invalid Date');
-  });
+        // Verify the price was updated
+        expect(updatedProduct.price).toBe(updates.price);
 
-  test('should create product with minimal required fields', async ({ request }) => {
-    const minimalProduct = {
-      title: 'Minimal Product Test',
-      price: 49.99,
-    };
-
-    const response = await request.post('/products/add', {
-      data: minimalProduct,
+        // Other fields should still exist
+        expect(updatedProduct.title).toBeDefined();
+        expect(updatedProduct.description).toBeDefined();
     });
 
-    expect(response.ok()).toBeTruthy();
-    const product = await response.json();
-    
-    expect(product.id).toBeDefined();
-    expect(product.title).toBe(minimalProduct.title);
-    expect(product.price).toBe(minimalProduct.price);
-  });
+    test('should delete a product (DELETE)', async () => {
+        const productId = 1;
 
-  test('should handle multiple field updates via PATCH', async ({ request }) => {
-    const productId = 1;
-    const updates = {
-      title: 'Multi-field Update Test',
-      price: 799.99,
-      stock: 50,
-      rating: 4.9,
-    };
+        const response = await productsAPI.deleteProduct(productId);
 
-    const response = await request.patch(`/products/${productId}`, {
-      data: updates,
+        expect(response.ok).toBeTruthy();
+        expect(response.status).toBe(200);
+
+        const deletedProduct = response.data;
+
+        // Verify deletion response
+        expect(deletedProduct.id).toBe(productId);
+        expect(deletedProduct.isDeleted).toBe(true);
+        expect(deletedProduct.deletedOn).toBeDefined();
+
+        // Verify deletedOn is a valid ISO date
+        const deletedDate = new Date(deletedProduct.deletedOn);
+        expect(deletedDate.toString()).not.toBe('Invalid Date');
     });
 
-    expect(response.ok()).toBeTruthy();
-    const updatedProduct = await response.json();
-    
-    ProductAssertions.assertProductsMatch(updatedProduct, updates);
-  });
+    test('should create product with minimal required fields', async () => {
+        const minimalProduct = {
+            title: 'Minimal Product Test',
+            price: 49.99,
+        };
+        const response = await productsAPI.addProduct(minimalProduct);
 
-  test('should create product with all fields', async ({ request }) => {
-    const completeProduct = {
-      title: 'Complete Product Test',
-      description: 'A fully detailed product for comprehensive testing',
-      price: 999.99,
-      discountPercentage: 15.5,
-      rating: 4.7,
-      stock: 75,
-      brand: 'Test Brand Premium',
-      category: 'laptops',
-    };
+        expect(response.ok).toBeTruthy();
+        const product = response.data;
 
-    const response = await request.post('/products/add', {
-      data: completeProduct,
+        expect(product.id).toBeDefined();
+        expect(product.title).toBe(minimalProduct.title);
+        expect(product.price).toBe(minimalProduct.price);
     });
 
-    expect(response.ok()).toBeTruthy();
-    const createdProduct = await response.json();
-    
-    // Verify all fields
-    expect(createdProduct.title).toBe(completeProduct.title);
-    expect(createdProduct.description).toBe(completeProduct.description);
-    expect(createdProduct.price).toBe(completeProduct.price);
-    expect(createdProduct.brand).toBe(completeProduct.brand);
-    expect(createdProduct.category).toBe(completeProduct.category);
-  });
+    test('should handle multiple field updates via PATCH', async () => {
+        const productId = 1;
+        const updates = {
+            title: 'Multi-field Update Test',
+            price: 799.99,
+            stock: 50,
+            rating: 4.9,
+        };
 
-  test('should update product price to zero', async ({ request }) => {
-    const productId = 1;
-    const response = await request.patch(`/products/${productId}`, {
-      data: { price: 0 },
+        const response = await productsAPI.patchProduct(productId, updates);
+           
+
+        expect(response.ok).toBeTruthy();
+        const updatedProduct = response.data;
+
+        ProductAssertions.assertProductsMatch(updatedProduct, updates);
     });
 
-    expect(response.ok()).toBeTruthy();
-    const updatedProduct = await response.json();
-    // Note: API may not allow price of 0, verify it's updated or reverted to original
-    expect(updatedProduct.price).toBeDefined();
-  });
+    test('should create product with all fields', async () => {
+        const completeProduct = {
+            title: 'Complete Product Test',
+            description: 'A fully detailed product for comprehensive testing',
+            price: 999.99,
+            discountPercentage: 15.5,
+            rating: 4.7,
+            stock: 75,
+            brand: 'Test Brand Premium',
+            category: 'laptops',
+        };
 
-  test('should handle PUT request with changed category', async ({ request }) => {
-    const productId = 1;
-    const updates = {
-      title: 'Category Changed Product',
-      category: 'fragrances',
-      price: 149.99,
-    };
+        const response = await productsAPI.addProduct(completeProduct);
 
-    const response = await request.put(`/products/${productId}`, {
-      data: updates,
+        expect(response.ok).toBeTruthy();
+        const product = response.data;
+
+        // Verify all fields
+        expect(product.title).toBe(completeProduct.title);
+        expect(product.description).toBe(completeProduct.description);
+        expect(product.price).toBe(completeProduct.price);
+        expect(product.brand).toBe(completeProduct.brand);
+        expect(product.category).toBe(completeProduct.category);
     });
 
-    expect(response.ok()).toBeTruthy();
-    const updatedProduct = await response.json();
-    
-    expect(updatedProduct.category).toBe(updates.category);
-    expect(updatedProduct.title).toBe(updates.title);
-  });
+    test('should update product price to zero', async () => {
+        const productId = 1;
+        const response = await productsAPI.patchProduct(productId, { price: 0 });
 
-  test('should verify response headers for POST request', async ({ request }) => {
-    const response = await request.post('/products/add', {
-      data: sampleProduct,
+        expect(response.ok).toBeTruthy();
+        const updatedProduct = response.data;
+        // Note: API may not allow price of 0, verify it's updated or reverted to original
+        expect(updatedProduct.price).toBeDefined();
     });
 
-    expect(response.ok()).toBeTruthy();
-    
-    // Verify content type
-    const contentType = response.headers()['content-type'];
-    expect(contentType).toContain('application/json');
-  });
+    test('should handle PUT request with changed category', async () => {
+        const productId = 1;
+        const updates = {
+            title: 'Category Changed Product',
+            category: 'fragrances',
+            price: 149.99,
+        };
+
+        const response = await productsAPI.updateProduct(productId, updates);
+
+        expect(response.ok).toBeTruthy();
+        const updatedProduct = response.data;
+
+        expect(updatedProduct.category).toBe(updates.category);
+        expect(updatedProduct.title).toBe(updates.title);
+    });
+
+    test('should verify response headers for POST request', async () => {
+
+        const response = await productsAPI.addProduct(sampleProduct);
+        expect(response.ok).toBeTruthy();
+
+        // Verify content type
+        const contentType = response.headers['content-type'];
+        expect(contentType).toContain('application/json');
+    });
 });
