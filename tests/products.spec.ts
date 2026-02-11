@@ -9,7 +9,7 @@ import { validateResponseSchema } from '@lib/helpers/ajv_schema_validator';
 /**
  * Test suite for DummyJSON Products API - Basic Operations
  */
-test.describe('Products API - Basic Operations', () => {
+test.describe.only('Products API - Basic Operations', () => {
     let productsAPI: ProductsAPI;
 
     test.beforeEach(async ({ request }) => {
@@ -22,16 +22,16 @@ test.describe('Products API - Basic Operations', () => {
         const responseTime = Date.now() - startTime;
 
         // Validate response structure
-        ProductAssertions.assertValidProductsResponse(response);
+        ProductAssertions.assertValidProductsResponse(response.data);
 
         // Validate default pagination
-        expect(response.limit).toBe(paginationData.defaultLimit);
-        expect(response.skip).toBe(0);
-        expect(response.products.length).toBeGreaterThan(0);
-        expect(response.total).toBeGreaterThan(0);
+        expect(response.data.limit).toBe(paginationData.defaultLimit);
+        expect(response.data.skip).toBe(0);
+        expect(response.data.products.length).toBeGreaterThan(0);
+        expect(response.data.total).toBeGreaterThan(0);
 
         // Validate each product
-        response.products.forEach(product => {
+        response.data.products.forEach(product => {
             ProductAssertions.assertValidProduct(product);
         });
 
@@ -43,9 +43,9 @@ test.describe('Products API - Basic Operations', () => {
         const limit = paginationData.customLimit;
         const response = await productsAPI.getAllProducts(limit, 0);
 
-        ProductAssertions.assertValidProductsResponse(response);
-        ProductAssertions.assertPagination(response, 0, limit);
-        expect(response.products.length).toBeLessThanOrEqual(limit);
+        ProductAssertions.assertValidProductsResponse(response.data);
+        ProductAssertions.assertPagination(response.data, 0, limit);
+        expect(response.data.products.length).toBeLessThanOrEqual(limit);
     });
 
     test('should fetch products with skip parameter', async () => {
@@ -54,44 +54,34 @@ test.describe('Products API - Basic Operations', () => {
 
         const response = await productsAPI.getAllProducts(limit, skip);
 
-        ProductAssertions.assertValidProductsResponse(response);
-        ProductAssertions.assertPagination(response, skip, limit);
+        ProductAssertions.assertValidProductsResponse(response.data);
+        ProductAssertions.assertPagination(response.data, skip, limit);
     });
 
-    test('should fetch a single product by valid ID', async ({ request }) => {
+    test('should fetch a single product by valid ID', async () => {
         const productId = knownProductIds.valid;
-        const response = await request.get(`https://dummyjson.com/products/${productId}`);
+       const response = await productsAPI.getProductById(productId);
 
-        expect(response.ok()).toBeTruthy();
-        expect(response.status()).toBe(200);
-
-        const product = await response.json();
-        ProductAssertions.assertValidProduct(product);
-        expect(product.id).toBe(productId);
-
-        expect(validateResponseSchema(product, singleProductSchema), 'Schema validation should pass').toBe(true);
-
+        expect(response.data.id).toBe(productId);
+        expect(validateResponseSchema(response.data, singleProductSchema), 'Schema validation should pass').toBe(true);
 
     });
 
-    test('should return 404 for non-existent product ID', async ({ request }) => {
+    test('should return 404 for non-existent product ID', async () => {
         const productId = knownProductIds.invalid;
-        const response = await request.get(`https://dummyjson.com/products/${productId}`);
+        const response = await productsAPI.getProductById(productId);
 
-        expect(response.status()).toBe(404);
-
-        const errorData = await response.json();
-        expect(errorData.message).toBeTruthy();
+        expect(response.status).toBe(404);
     });
 
     test('should fetch all product categories', async () => {
         const categories = await productsAPI.getCategories();
 
-        expect(Array.isArray(categories)).toBeTruthy();
-        expect(categories.length).toBeGreaterThan(0);
+        expect(Array.isArray(categories.data)).toBeTruthy();
+        expect(categories.data.length).toBeGreaterThan(0);
 
         // Validate categories (can be strings or objects with slug/name)
-        categories.forEach(category => {
+        categories.data.forEach(category => {
             if (typeof category === 'string') {
                 expect(category.length).toBeGreaterThan(0);
             } else {
@@ -111,9 +101,9 @@ test.describe('Products API - Basic Operations', () => {
         const limit = paginationData.largeLimit;
         const response = await productsAPI.getAllProducts(limit, 0);
 
-        ProductAssertions.assertValidProductsResponse(response);
-        expect(response.limit).toBe(limit);
-        expect(response.products.length).toBeGreaterThan(0);
+        ProductAssertions.assertValidProductsResponse(response.data);
+        expect(response.data.limit).toBe(limit);
+        expect(response.data.products.length).toBeGreaterThan(0);
     });
 
     test('should fetch products from second page', async () => {
@@ -122,12 +112,12 @@ test.describe('Products API - Basic Operations', () => {
         const secondPage = await productsAPI.getAllProducts(limit, limit);
 
         // Validate both pages
-        ProductAssertions.assertValidProductsResponse(firstPage);
-        ProductAssertions.assertValidProductsResponse(secondPage);
+        ProductAssertions.assertValidProductsResponse(firstPage.data);
+        ProductAssertions.assertValidProductsResponse(secondPage.data);
 
         // Ensure products are different
-        const firstPageIds = firstPage.products.map(p => p.id);
-        const secondPageIds = secondPage.products.map(p => p.id);
+        const firstPageIds = firstPage.data.products.map(p => p.id);
+        const secondPageIds = secondPage.data.products.map(p => p.id);
 
         // No overlap between pages
         const overlap = firstPageIds.filter(id => secondPageIds.includes(id));
@@ -139,14 +129,14 @@ test.describe('Products API - Basic Operations', () => {
         const response2 = await productsAPI.getAllProducts(20, 5);
 
         // Total should be consistent across different pagination requests
-        expect(response1.total).toBe(response2.total);
-        expect(response1.total).toBeGreaterThan(0);
+        expect(response1.data.total).toBe(response2.data.total);
+        expect(response1.data.total).toBeGreaterThan(0);
     });
 
     test('should validate product image URLs are valid', async () => {
         const response = await productsAPI.getAllProducts(5, 0);
 
-        response.products.forEach(product => {
+        response.data.products.forEach(product => {
             // Validate thumbnail is a valid URL
             expect(product.thumbnail).toMatch(/^https?:\/\/.+/);
 

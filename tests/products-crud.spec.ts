@@ -22,7 +22,7 @@ test.describe('Products API - CRUD Operations', () => {
       price: generateRandomPrice(),
     };
 
-    const response = await request.post('https://dummyjson.com/products/add', {
+    const response = await request.post('/products/add', {
       data: newProduct,
     });
 
@@ -53,7 +53,7 @@ test.describe('Products API - CRUD Operations', () => {
       category: 'laptops',
     };
 
-    const response = await request.put(`https://dummyjson.com/products/${productId}`, {
+    const response = await request.put(`/products/${productId}`, {
       data: updates,
     });
 
@@ -75,7 +75,7 @@ test.describe('Products API - CRUD Operations', () => {
       price: 499.99,
     };
 
-    const response = await request.patch(`https://dummyjson.com/products/${productId}`, {
+    const response = await request.patch(`/products/${productId}`, {
       data: updates,
     });
 
@@ -98,7 +98,7 @@ test.describe('Products API - CRUD Operations', () => {
   test('should delete a product (DELETE)', async ({ request }) => {
     const productId = 1;
 
-    const response = await request.delete(`https://dummyjson.com/products/${productId}`);
+    const response = await request.delete(`/products/${productId}`);
 
     expect(response.ok()).toBeTruthy();
     expect(response.status()).toBe(200);
@@ -121,7 +121,7 @@ test.describe('Products API - CRUD Operations', () => {
       price: 49.99,
     };
 
-    const response = await request.post('https://dummyjson.com/products/add', {
+    const response = await request.post('/products/add', {
       data: minimalProduct,
     });
 
@@ -142,7 +142,7 @@ test.describe('Products API - CRUD Operations', () => {
       rating: 4.9,
     };
 
-    const response = await request.patch(`https://dummyjson.com/products/${productId}`, {
+    const response = await request.patch(`/products/${productId}`, {
       data: updates,
     });
 
@@ -164,7 +164,7 @@ test.describe('Products API - CRUD Operations', () => {
       category: 'laptops',
     };
 
-    const response = await request.post('https://dummyjson.com/products/add', {
+    const response = await request.post('/products/add', {
       data: completeProduct,
     });
 
@@ -181,7 +181,7 @@ test.describe('Products API - CRUD Operations', () => {
 
   test('should update product price to zero', async ({ request }) => {
     const productId = 1;
-    const response = await request.patch(`https://dummyjson.com/products/${productId}`, {
+    const response = await request.patch(`/products/${productId}`, {
       data: { price: 0 },
     });
 
@@ -199,7 +199,7 @@ test.describe('Products API - CRUD Operations', () => {
       price: 149.99,
     };
 
-    const response = await request.put(`https://dummyjson.com/products/${productId}`, {
+    const response = await request.put(`/products/${productId}`, {
       data: updates,
     });
 
@@ -211,7 +211,7 @@ test.describe('Products API - CRUD Operations', () => {
   });
 
   test('should verify response headers for POST request', async ({ request }) => {
-    const response = await request.post('https://dummyjson.com/products/add', {
+    const response = await request.post('/products/add', {
       data: sampleProduct,
     });
 

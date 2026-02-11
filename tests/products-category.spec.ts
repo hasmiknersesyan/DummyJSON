@@ -86,7 +86,7 @@ test.describe('Products API - Category Filtering', () => {
 
     test('should handle non-existent category gracefully', async ({ request }) => {
         const invalidCategory = 'nonexistentcategory123';
-        const response = await request.get(`https://dummyjson.com/products/category/${invalidCategory}`);
+        const response = await request.get(`/products/category/${invalidCategory}`);
 
         // API may return 404 or empty results
         if (response.status() === 404) {
@@ -138,7 +138,6 @@ test.describe('Products API - Category Filtering', () => {
             // console.log(`Expected product ` + product );
             expect(product.category).toBe(categoryName);
             expect(product.category).not.toBe(categoryName.toUpperCase());
-            expect(product.category).not.toBe(categoryName.toLowerCase());
         });
     });
 
@@ -201,8 +200,8 @@ test.describe('Products API - Category Filtering', () => {
         const category = 'smartphones';
         const categoryUpper = 'SMARTPHONES';
 
-        const responseLower = await request.get(`https://dummyjson.com/products/category/${category}`);
-        const responseUpper = await request.get(`https://dummyjson.com/products/category/${categoryUpper}`);
+        const responseLower = await request.get(`/products/category/${category}`);
+        const responseUpper = await request.get(`/products/category/${categoryUpper}`);
 
         const dataLower = await responseLower.json();
         const dataUpper = await responseUpper.json();

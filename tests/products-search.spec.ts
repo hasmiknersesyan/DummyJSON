@@ -78,15 +78,15 @@ test.describe('Products API - Search Functionality', () => {
     const searchTermUpper = 'PHONE';
     const searchTermMixed = 'PhOnE';
 
-    const responseLower = await request.get('https://dummyjson.com/products/search', {
+    const responseLower = await request.get('/products/search', {
       params: { q: searchTermLower },
     });
     
-    const responseUpper = await request.get('https://dummyjson.com/products/search', {
+    const responseUpper = await request.get('/products/search', {
       params: { q: searchTermUpper },
     });
     
-    const responseMixed = await request.get('https://dummyjson.com/products/search', {
+    const responseMixed = await request.get('/products/search', {
       params: { q: searchTermMixed },
     });
 
@@ -140,7 +140,7 @@ test.describe('Products API - Search Functionality', () => {
   });
 
   test('should handle empty search query', async ({ request }) => {
-    const response = await request.get('https://dummyjson.com/products/search', {
+    const response = await request.get('/products/search', {
       params: { q: '' },
     });
 
@@ -156,7 +156,7 @@ test.describe('Products API - Search Functionality', () => {
     const specialChars = ['@', '#', '$', '%', '&', '*'];
     
     for (const char of specialChars) {
-      const response = await request.get('https://dummyjson.com/products/search', {
+      const response = await request.get('/products/search', {
         params: { q: char },
       });
       
@@ -186,7 +186,7 @@ test.describe('Products API - Search Functionality', () => {
   });
 
   test('should handle numeric search query', async ({ request }) => {
-    const response = await request.get('https://dummyjson.com/products/search', {
+    const response = await request.get('/products/search', {
       params: { q: '500' },
     });
 
@@ -197,7 +197,7 @@ test.describe('Products API - Search Functionality', () => {
 
   test('should search with very long query string', async ({ request }) => {
     const longQuery = 'a'.repeat(200);
-    const response = await request.get('https://dummyjson.com/products/search', {
+    const response = await request.get('/products/search', {
       params: { q: longQuery },
     });
 
